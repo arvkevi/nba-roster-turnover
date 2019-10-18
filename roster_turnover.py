@@ -83,5 +83,6 @@ def roster_turnover_pivot(player_minutes, team='ATLANTA HAWKS', year=2004):
         .drop(columns=['team'])\
         .set_index('name')
 
+st.header('Team Roster: Minutes Played Breakdown')
 selected_team = st.selectbox('Choose a team to view roster', teams)
 st.write(roster_turnover_pivot(player_minutes, team=selected_team, year=year))
