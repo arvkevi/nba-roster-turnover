@@ -1,3 +1,4 @@
+basketball-reference-web-scraper
 numpy
 pandas
 Pillow
