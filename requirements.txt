@@ -3,5 +3,6 @@ numpy
 pandas
 Pillow
 plotly-express
+requests
 sportsreference
 streamlit
