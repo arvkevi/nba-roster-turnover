@@ -31,13 +31,13 @@ import plotly.express as px
 import requests
 import streamlit as st
 from PIL import Image
-from sportsreference.nba.teams import Teams
+from sportsipy.nba.teams import Teams
 
 TEAMS_DATA_SOURCE = (
     "https://raw.githubusercontent.com/jimniels/teamcolors/master/src/teams.json"
 )
-PLAYER_MINUTES = "data/NBA_player_minutes.2004-2019.csv"
-ROSTER_TURNOVER = "data/NBA_roster_turnover_wins.2004-2019.csv"
+PLAYER_MINUTES = "data/NBA_player_minutes.2004-2021.csv"
+ROSTER_TURNOVER = "data/NBA_roster_turnover_wins.2004-2021.csv"
 IMAGE = "images/basketball.jpg"
 
 GITHUB_ROOT = (
@@ -76,7 +76,7 @@ regular season wins."""
         wins_turnover_corr = load_wins_turnover_corr(roster_turnover)
 
     st.header("Correlation by year")
-    year = st.slider("Select a Year", 2004, 2019)
+    year = st.slider("Select a Year", 2004, 2021)
     teams = get_teams(year)
     teams_colorscale = get_teams_colorscale(teams, team_colors)
 
@@ -125,7 +125,7 @@ def load_teams_colors():
     team_colors = {}
 
     # all team colors
-    for team in Teams(year=2019):
+    for team in Teams(year=2021):
         team_rgb_strings = (
             raw_team_colors.loc[raw_team_colors["name"] == team.name]["colors"]
             .item()["rgb"][0]

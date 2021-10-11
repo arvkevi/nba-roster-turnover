@@ -1,6 +1,10 @@
-numpy
-pandas
-Pillow
-plotly-express
-sportsreference
-streamlit
+basketball-reference-web-scraper==4.12.1
+bs4==0.0.1
+charset-normalizer==2.0.6
+cufflinks==0.17.3
+jupyter==1.0.0
+pip-chill==1.0.1
+plotly-express==0.4.1
+git+git://github.com/path/to/package-two@master#egg=sportsipy
+sportsreference==0.5.2
+streamlit==1.0.0
