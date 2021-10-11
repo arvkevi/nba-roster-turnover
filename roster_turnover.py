@@ -33,9 +33,7 @@ import streamlit as st
 from PIL import Image
 from sportsipy.nba.teams import Teams
 
-TEAMS_DATA_SOURCE = (
-    "https://raw.githubusercontent.com/jimniels/teamcolors/master/src/teams.json"
-)
+TEAMS_DATA_SOURCE = "https://raw.githubusercontent.com/jimniels/teamcolors/master/src/teams.json"
 PLAYER_MINUTES = "data/NBA_player_minutes.2004-2021.csv"
 ROSTER_TURNOVER = "data/NBA_roster_turnover_wins.2004-2021.csv"
 IMAGE = "images/basketball.jpg"
@@ -45,9 +43,7 @@ GITHUB_ROOT = (
 )
 PLAYER_MINUTES_GITHUB = GITHUB_ROOT + PLAYER_MINUTES
 ROSTER_TURNOVER_GITHUB = GITHUB_ROOT + ROSTER_TURNOVER
-TEAMS_DATA_GITHUB = (
-    "https://raw.githubusercontent.com/jimniels/teamcolors/master/src/teams.json"
-)
+TEAMS_DATA_GITHUB = "https://raw.githubusercontent.com/jimniels/teamcolors/master/src/teams.json"
 IMAGE_GITHUB = GITHUB_ROOT + "images/basketball.jpg"
 
 
@@ -76,7 +72,7 @@ regular season wins."""
         wins_turnover_corr = load_wins_turnover_corr(roster_turnover)
 
     st.header("Correlation by year")
-    year = st.slider("Select a Year", 2004, 2021)
+    year = st.selectbox("Select a Year", list(range(2004, 2022)))
     teams = get_teams(year)
     teams_colorscale = get_teams_colorscale(teams, team_colors)
 
@@ -101,7 +97,8 @@ regular season wins."""
     st.header("Minutes Played Breakdown by Team")
     selected_team = st.selectbox("Select a team", teams)
     st.dataframe(
-        roster_turnover_pivot(player_minutes, team=selected_team, year=year), width=1080
+        roster_turnover_pivot(player_minutes, team=selected_team, year=year),
+        width=1080,
     )
     st.text("* The numbers in the table are minutes played")
 
@@ -145,7 +142,7 @@ def load_teams_colors():
 @st.cache
 def load_wins_turnover_corr(roster_turnover):
     wins_turnover_corr = {}
-    years = range(2004, 2020)
+    years = range(2004, 2022)
     for year_ in years:
         # calculate the correlation between wins and roster turnover
         wins_turnover_corr[year_] = (
@@ -176,12 +173,18 @@ def get_teams_colorscale(teams, team_colors):
 @st.cache
 def roster_turnover_pivot(player_minutes, team="ATLANTA HAWKS", year=2004):
     pm_subset = player_minutes.loc[
-        ((player_minutes["year"] == year) | (player_minutes["year"] == year - 1))
+        (
+            (player_minutes["year"] == year)
+            | (player_minutes["year"] == year - 1)
+        )
         & (player_minutes["team"] == team)
     ]
     result = (
         pd.pivot_table(
-            pm_subset, values="minutes_played", index=["team", "name"], columns=["year"]
+            pm_subset,
+            values="minutes_played",
+            index=["team", "name"],
+            columns=["year"],
         )
         .fillna(0)
         .reset_index()
