@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # hold the correlation values between wins and turnover for a given year
     wins_turnover_corr = {}
 
-    years = range(2004, 2022)
+    years = range(2004, 2023)
     for year in years:
         wins = {}
         teams = Teams(year=year)
@@ -88,5 +88,5 @@ if __name__ == "__main__":
 
     # always write these to file, because the kernel self-references it's output
     player_minutes = player_minutes.drop_duplicates()
-    player_minutes.to_csv("NBA_player_minutes.2004-2021.csv")
-    roster_turnover.to_csv("NBA_roster_turnover_wins.2004-2021.csv")
+    player_minutes.to_csv("NBA_player_minutes.2004-2022.csv")
+    roster_turnover.to_csv("NBA_roster_turnover_wins.2004-2022.csv")
