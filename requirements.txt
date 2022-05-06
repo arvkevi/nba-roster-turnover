@@ -5,6 +5,6 @@ cufflinks==0.17.3
 jupyter==1.0.0
 pip-chill==1.0.1
 plotly-express==0.4.1
-git+git://github.com/roclark/sportsipy@master#egg=sportsipy
+sportsipy
 sportsreference==0.5.2
 streamlit==1.0.0
