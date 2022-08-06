@@ -7,4 +7,4 @@ pip-chill==1.0.1
 plotly-express==0.4.1
 git+https://github.com/roclark/sportsipy@master#egg=sportsipy
 sportsreference==0.5.2
-streamlit==1.0.0
+streamlit==1.11.1
