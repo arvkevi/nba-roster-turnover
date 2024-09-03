@@ -31,11 +31,12 @@ import plotly.express as px
 import requests
 import streamlit as st
 from PIL import Image
-from sportsipy.nba.teams import Teams
+from basketball_reference_web_scraper import client
+
 
 TEAMS_DATA_SOURCE = "https://raw.githubusercontent.com/jimniels/teamcolors/master/src/teams.json"
-PLAYER_MINUTES = "data/NBA_player_minutes.2004-2022.csv"
-ROSTER_TURNOVER = "data/NBA_roster_turnover_wins.2004-2022.csv"
+PLAYER_MINUTES = "data/NBA_player_minutes.2004-2024.csv"
+ROSTER_TURNOVER = "data/NBA_roster_turnover_wins.2004-2024.csv"
 IMAGE = "images/basketball.jpg"
 
 GITHUB_ROOT = (
@@ -72,7 +73,7 @@ regular season wins."""
         wins_turnover_corr = load_wins_turnover_corr(roster_turnover)
 
     st.header("Correlation by year")
-    year = st.selectbox("Select a Year", list(range(2004, 2023)))
+    year = st.selectbox("Select a Year", list(range(2004, 2025)), index=20)
     teams = get_teams(year)
     teams_colorscale = get_teams_colorscale(teams, team_colors)
 
@@ -103,32 +104,36 @@ regular season wins."""
     st.text("* The numbers in the table are minutes played")
 
 
-@st.cache
+@st.cache_data
 def load_player_minutes():
     return pd.read_csv(PLAYER_MINUTES_GITHUB)
 
 
-@st.cache
+@st.cache_data
 def load_roster_turnover():
     roster_turnover = pd.read_csv(ROSTER_TURNOVER_GITHUB)
     roster_turnover.set_index("team", inplace=True)
     return roster_turnover
 
 
-@st.cache
+@st.cache_data
 def load_teams_colors():
     raw_team_colors = pd.read_json(TEAMS_DATA_GITHUB)
+    raw_team_colors["name"] = raw_team_colors["name"].str.upper().replace(" ", "_")
     # scrape a team's primary colors for the graphs below.
     team_colors = {}
 
     # all team colors
-    for team in Teams(year=2022):
+    # for team in Teams(year=2024):
+    teamsdf = pd.DataFrame(client.standings(season_end_year=2024))
+    teams = teamsdf["team"].unique()
+    for team in teams:
         team_rgb_strings = (
-            raw_team_colors.loc[raw_team_colors["name"] == team.name]["colors"]
+            raw_team_colors.loc[raw_team_colors["name"] == team.name.upper().replace("_", " ")]["colors"]
             .item()["rgb"][0]
             .split(" ")
         )
-        team_colors[team.name.upper()] = tuple(int(c) for c in team_rgb_strings)
+        team_colors[team.name.upper().replace("_", " ")] = tuple(int(c) for c in team_rgb_strings)
 
     # add old teams, the SuperSonics, and New Jersey Nets
     team_colors["SEATTLE SUPERSONICS"] = tuple((0, 101, 58))
@@ -139,10 +144,10 @@ def load_teams_colors():
     return team_colors
 
 
-@st.cache
+@st.cache_data
 def load_wins_turnover_corr(roster_turnover):
     wins_turnover_corr = {}
-    years = range(2004, 2023)
+    years = range(2004, 2025)
     for year_ in years:
         # calculate the correlation between wins and roster turnover
         wins_turnover_corr[year_] = (
@@ -150,28 +155,31 @@ def load_wins_turnover_corr(roster_turnover):
             .corr()["wins"]["turnover"]
             .round(2)
         )
+        st.write(f"Finished {year_} season")
+        st.write(wins_turnover_corr[year_])
     return wins_turnover_corr
+    
 
-
-@st.cache
+@st.cache_data
 def get_image():
     response = requests.get(IMAGE_GITHUB)
     return Image.open(BytesIO(response.content))
 
 
-@st.cache
+@st.cache_data
 def get_teams(year):
-    teams = Teams(year=year)
-    return sorted([team.name.upper() for team in teams])
+    teamsdf = pd.DataFrame(client.standings(season_end_year=year))
+    teams = teamsdf["team"].unique()
+    return sorted([team.name.upper().replace("_", " ") for team in teams])
 
 
-@st.cache
+@st.cache_data
 def get_teams_colorscale(teams, team_colors):
     return [f"rgb{team_colors[team]}" for team in teams]
 
 
-@st.cache
-def roster_turnover_pivot(player_minutes, team="ATLANTA HAWKS", year=2004):
+@st.cache_data
+def roster_turnover_pivot(player_minutes, team="ATLANTA HAWKS", year=2024):
     pm_subset = player_minutes.loc[
         (
             (player_minutes["year"] == year)
@@ -195,7 +203,7 @@ def roster_turnover_pivot(player_minutes, team="ATLANTA HAWKS", year=2004):
     return result
 
 
-@st.cache
+@st.cache_data
 def get_turnover_vs_wins_plot(roster_turnover, year, teams_colorscale):
     scatter_data = roster_turnover.dropna().reset_index()
     scatter_data = scatter_data.astype(
