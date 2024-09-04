@@ -80,15 +80,17 @@ regular season wins."""
     st.write(f"Correlation Coefficient: {wins_turnover_corr[year]}")
     st.sidebar.image(image, use_column_width=True)
     st.sidebar.markdown(
-        "Explore NBA roster turnover since\nthe 2003-04 season. **Roster turnover** is \ndefined as the "
-        "sum of the absolute difference\nin total minutes played by each player\non a given team between any two "
-        "years."
+        "Explore NBA roster turnover since\nthe 2003-04 season."
     )
-    st.sidebar.table(
-        pd.DataFrame.from_dict(
-            wins_turnover_corr, orient="index", columns=["correlation"]
-        ).round(2)
-    )
+    corrdf = pd.DataFrame.from_dict(
+            wins_turnover_corr, orient="index", columns=["correlation"],
+        ).round(3)
+    corrdf.index = corrdf.index.astype(str)
+    corrdf.index.name = "year"
+    # corrdf.index.astype("int")
+    st.sidebar.plotly_chart(px.line(data_frame=corrdf.reset_index(), x="year", y="correlation", range_y=(-0.7, 0)), use_container_width=True)
+
+    st.sidebar.dataframe(corrdf)
 
     # Data frame for the plot
     fig = get_turnover_vs_wins_plot(roster_turnover, year, teams_colorscale)
@@ -153,12 +155,10 @@ def load_wins_turnover_corr(roster_turnover):
         wins_turnover_corr[year_] = (
             roster_turnover.loc[roster_turnover["year"] == year_]
             .corr()["wins"]["turnover"]
-            .round(2)
+            .round(3)
         )
-        st.write(f"Finished {year_} season")
-        st.write(wins_turnover_corr[year_])
     return wins_turnover_corr
-    
+
 
 @st.cache_data
 def get_image():
